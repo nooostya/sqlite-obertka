@@ -17,19 +17,29 @@ struct userData
 };
 
 typedef std::list<userData> UserDataList;
+const char* dir = "C:\\DataBase\\first.db";
+sqlite3* db;
 
 class SQL {
 private:
-	sqlite3* db;
-	const char* dir = "C:\\DataBase\\first.db";
+	
+	int rc;
 	
 public:
+	
 	SQL() {
 
 	}
 	int Open(const char* dir)
 	{
-		sqlite3_open(dir, &db);
+		rc = sqlite3_open(dir, &db);
+		if (rc) {
+			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		}
+		else {
+			fprintf(stdout, "Opened database successfully\n");
+		}
+		return 0;
 	}
 
 	~SQL()
@@ -39,6 +49,18 @@ public:
 };
 
 class Operations{
+private:
+	int rc;
+	int exit = 0;
+	char* zErrMsg;
+	char* messageError;
+	string name;
+	int16_t birthday;
+	string birthdayStr;
+	sqlite3_stmt *stmt;
+	int err;
+	userData a;
+	string line;
 public:
 Operations(){}
 int createTable(sqlite3* db) {
@@ -49,14 +71,14 @@ int createTable(sqlite3* db) {
 		"birthday INT NOT NULL)";
 	try
 	{
-		int exit = 0;
+		
 
 		char* messageError;
 		exit = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
 		if (exit != SQLITE_OK) {
 			cerr << "Error creating table" << endl;
 			sqlite3_free(messageError);
-
+			return 1;
 		}
 		else
 			cout << "Table created successfully" << endl;
@@ -71,14 +93,22 @@ int createTable(sqlite3* db) {
 }
 int createIndex(sqlite3* db)
 {
-	char* messageError;
-
+	
 	string sql("CREATE INDEX IF NOT EXISTS main ON BIRTHDAYS(name)");
-	sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
+	rc=sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Index not created, error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+		return 1;
+	}
+	else {
+		fprintf(stdout, "Index created successfully\n");
+	}
 	return 0;
 }
 int readData(UserDataList& dataList) {
-	string line;
+
+	
 	fstream f("C:\\DataBase\\names.txt", ios::in);
 	userData d;
 	d.number = 1;
@@ -98,9 +128,7 @@ int readData(UserDataList& dataList) {
 }
 int inputData(UserDataList& dataList)
 {
-	string name;
-	int16_t birthday;
-	string birthdayStr;
+	
 	while (true)
 	{
 		std::cout << "name: " << endl;
@@ -108,6 +136,7 @@ int inputData(UserDataList& dataList)
 		getline(cin, name);
 		if (name.empty())
 		{
+			std::cout << "Name error" << endl;
 			break;
 		}
 	again:
@@ -135,9 +164,7 @@ int inputData(UserDataList& dataList)
 }
 int insertData(sqlite3* db, UserDataList& dataList)
 {
-	sqlite3_stmt *stmt;
-	int err;
-	string name;
+	
 	const char *sql = "INSERT INTO Birthdays (name,birthday) VALUES (?,?)";
 	err = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 	if (err != SQLITE_OK)
@@ -160,9 +187,7 @@ int insertData(sqlite3* db, UserDataList& dataList)
 }
 int enterName(sqlite3* db, UserDataList& dataList)
 {
-	sqlite3_stmt *stmt;
-	string name;
-	userData a;
+	
 	sqlite3_prepare_v2(db, "SELECT * FROM birthdays WHERE name = ?", -1, &stmt, 0);
 	cout << "Enter the name you`re looking for" << endl;
 	cin >> name;
@@ -194,11 +219,15 @@ int selectData(sqlite3* db, UserDataList& dataList) {
 
 int main()
 {
-	SQL db;
-	db.Open;
+	SQL data;
+	data.Open(dir);
 	Operations op;
-	
-	db.~SQL();
+	op.createTable(db);
+	op.createIndex(db);
+	//op.insertData(db,);
+
+
+	data.~SQL();
 	
 	
 
