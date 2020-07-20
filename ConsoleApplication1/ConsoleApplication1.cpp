@@ -9,14 +9,38 @@
 #include <fstream>
 using namespace std;
 
-sqlite3* openDB(const char* dir)
+struct userData
 {
+	string name;
+	int birthday;
+	int number;
+};
+
+typedef std::list<userData> UserDataList;
+
+class SQL {
+private:
 	sqlite3* db;
-	sqlite3_open(dir, &db);
+	const char* dir = "C:\\DataBase\\first.db";
+	
+public:
+	SQL() {
 
-	return db;
-}
+	}
+	int Open(const char* dir)
+	{
+		sqlite3_open(dir, &db);
+	}
 
+	~SQL()
+	{
+		sqlite3_close(db);
+	}
+};
+
+class Operations{
+public:
+Operations(){}
 int createTable(sqlite3* db) {
 
 	string sql = "CREATE TABLE IF NOT EXISTS BIRTHDAYS("
@@ -41,11 +65,10 @@ int createTable(sqlite3* db) {
 	{
 		cerr << e.what();
 	}
-	
+
 	return 0;
 
 }
-
 int createIndex(sqlite3* db)
 {
 	char* messageError;
@@ -54,18 +77,9 @@ int createIndex(sqlite3* db)
 	sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
 	return 0;
 }
-
-struct userData
-{
-	string name;
-	int birthday;
-	int number;
-};
-
-typedef std::list<userData> UserDataList;
 int readData(UserDataList& dataList) {
 	string line;
-	fstream f("C:\\DataBase\\names.txt",ios::in);
+	fstream f("C:\\DataBase\\names.txt", ios::in);
 	userData d;
 	d.number = 1;
 	if (!f.is_open())
@@ -82,7 +96,6 @@ int readData(UserDataList& dataList) {
 	f.close();
 	return 0;
 }
-
 int inputData(UserDataList& dataList)
 {
 	string name;
@@ -97,7 +110,7 @@ int inputData(UserDataList& dataList)
 		{
 			break;
 		}
-		again:
+	again:
 		std::cout << "birthday : ";
 		getline(cin, birthdayStr);
 
@@ -111,7 +124,7 @@ int inputData(UserDataList& dataList)
 			cout << "Not valid, try again" << endl;
 			goto again;
 		}
-		
+
 		userData d;
 		d.name = name;
 		d.birthday = birthday;
@@ -120,7 +133,6 @@ int inputData(UserDataList& dataList)
 	}
 	return 0;
 }
-
 int insertData(sqlite3* db, UserDataList& dataList)
 {
 	sqlite3_stmt *stmt;
@@ -128,12 +140,12 @@ int insertData(sqlite3* db, UserDataList& dataList)
 	string name;
 	const char *sql = "INSERT INTO Birthdays (name,birthday) VALUES (?,?)";
 	err = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-	if (err!=SQLITE_OK)
+	if (err != SQLITE_OK)
 	{
 		cout << "execution failed:" << sqlite3_errmsg(db) << endl;
 		return err;
 	}
-	
+
 	for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
 	{
 		sqlite3_bind_text(stmt, 1, it->name.c_str(), -1, SQLITE_TRANSIENT);
@@ -146,24 +158,22 @@ int insertData(sqlite3* db, UserDataList& dataList)
 	sqlite3_finalize(stmt);
 	return 0;
 }
-
-
 int enterName(sqlite3* db, UserDataList& dataList)
 {
 	sqlite3_stmt *stmt;
 	string name;
 	userData a;
 	sqlite3_prepare_v2(db, "SELECT * FROM birthdays WHERE name = ?", -1, &stmt, 0);
-	cout<<"Enter the name you`re looking for"<<endl;
-	cin>>name;
-		sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
-		while (sqlite3_step(stmt) == SQLITE_ROW)
-		{
-			a.number= sqlite3_column_int(stmt, 0);
-			a.name = (const char*)(sqlite3_column_text(stmt, 1));
-			a.birthday= sqlite3_column_int(stmt, 2);
-			dataList.push_back(a);
-		}
+	cout << "Enter the name you`re looking for" << endl;
+	cin >> name;
+	sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		a.number = sqlite3_column_int(stmt, 0);
+		a.name = (const char*)(sqlite3_column_text(stmt, 1));
+		a.birthday = sqlite3_column_int(stmt, 2);
+		dataList.push_back(a);
+	}
 
 	sqlite3_finalize(stmt);
 	return 0;
@@ -171,30 +181,26 @@ int enterName(sqlite3* db, UserDataList& dataList)
 }
 int selectData(sqlite3* db, UserDataList& dataList) {
 	for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
-		{
-			cout<<it->number<<"|" << it->name<<"|"<< it->birthday<<endl;
-		}
-		return 0;
+	{
+		cout << it->number << "|" << it->name << "|" << it->birthday << endl;
 	}
-int closeDB(sqlite3* db)
-{
-	sqlite3_close(db);
 	return 0;
 }
+~Operations(){}
+};
+
+
+
 
 int main()
 {
-	const char* dir = "C:\\DataBase\\first.db";
-	sqlite3* db = openDB(dir);
-	std::list<userData> dataList;
-	createTable(db);
-	createIndex(db);
-	readData(dataList);
-	//inputData(dataList);
-	insertData(db,dataList);
-	enterName(db, dataList);
-	selectData(db, dataList);
-	closeDB(db);
+	SQL db;
+	db.Open;
+	Operations op;
+	
+	db.~SQL();
+	
+	
 
 	return 0;
 }
