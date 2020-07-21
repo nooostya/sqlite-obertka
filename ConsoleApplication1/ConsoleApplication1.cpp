@@ -7,6 +7,7 @@
 #include <iterator>
 #include <list>
 #include <fstream>
+#include <exception>
 using namespace std;
 
 struct userData
@@ -61,6 +62,8 @@ private:
 	int err;
 	userData a;
 	string line;
+	userData d;
+	
 public:
 Operations(){}
 int createTable(sqlite3* db) {
@@ -110,7 +113,6 @@ int readData(UserDataList& dataList) {
 
 	
 	fstream f("C:\\DataBase\\names.txt", ios::in);
-	userData d;
 	d.number = 1;
 	if (!f.is_open())
 	{
@@ -219,17 +221,17 @@ int selectData(sqlite3* db, UserDataList& dataList) {
 
 int main()
 {
+	std::list<userData> dataList;
 	SQL data;
 	data.Open(dir);
 	Operations op;
 	op.createTable(db);
 	op.createIndex(db);
-	//op.insertData(db,);
-
-
+	op.readData(dataList);
+	//op.inputData(dataList);
+	op.insertData(db, dataList);
+	op.enterName(db, dataList);
+	op.selectData(db, dataList);
 	data.~SQL();
-	
-	
-
 	return 0;
 }
