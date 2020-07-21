@@ -19,7 +19,7 @@ struct userData
 
 typedef std::list<userData> UserDataList;
 const char* dir = "C:\\DataBase\\first.db";
-sqlite3* db;
+
 class SQLException:public exception
 {
 private:
@@ -31,101 +31,140 @@ public:
 
 class SQL {
 private:
+	sqlite3* db;
+	sqlite3_stmt *stmt;
+	char* messageError;
+	userData a;
+	string line;
 	
-	int rc;
-	
+
 public:
 	
-	SQL() {
+	SQL() : db(nullptr){
 
 	}
-	int Open(const char* dir)
+
+	void Open(const char* dir)
 	{
 		
-		rc = sqlite3_open(dir, &db);
-		if (rc) {
-			fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		int rc = sqlite3_open(dir, &db);
+		if (rc) 
+		{
 			throw SQLException("Database opening error");
 		}
 		else {
 			fprintf(stdout, "Opened database successfully\n");
 		}
-		return 0;
-		
 	}
+	void createTable() {
 
-	~SQL()
-	{
-		sqlite3_close(db);
-	}
-};
-
-class Operations{
-private:
-	int rc;
-	int exit = 0;
-	char* zErrMsg;
-	char* messageError;
-	string name;
-	int16_t birthday;
-	string birthdayStr;
-	sqlite3_stmt *stmt;
-	int err;
-	userData a;
-	string line;
-	userData d;
-	
-public:
-Operations(){}
-int createTable(sqlite3* db) {
-
-	string sql = "CREATE TABLE IF NOT EXISTS BIRTHDAYS("
-		"NUMBER INTEGER PRIMARY KEY,"
-		"NAME TEXT NOT NULL,"
-		"birthday INT NOT NULL)";
-	
+		string sql = "CREATE TABLE IF NOT EXISTS BIRTHDAYS("
+			"NUMBER INTEGER PRIMARY KEY,"
+			"NAME TEXT NOT NULL,"
+			"birthday INT NOT NULL)";
 		
-
-		char* messageError;
-		exit = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
-		if (exit != SQLITE_OK) {
-			cerr << "Error creating table" << endl;
+		int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
+		if (rc != SQLITE_OK) {
 			throw SQLException("error creating table");
-			sqlite3_free(messageError);
-			return 1;
+			
 		}
 		else
 			cout << "Table created successfully" << endl;
 
-	return 0;
+	}
+	int createIndex()
+	{
 
-}
-int createIndex(sqlite3* db)
-{
-	
-	string sql("CREATE INDEX IF NOT EXISTS main ON BIRTHDAYS(name)");
-	rc=sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
-	if (rc != SQLITE_OK) {
-		fprintf(stderr, "Index not created, error: %s\n", zErrMsg);
-		throw SQLException("error creating index");
-		sqlite3_free(zErrMsg);
-		return 1;
+		string sql("CREATE INDEX IF NOT EXISTS main ON BIRTHDAYS(name)");
+		int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &messageError);
+		if (rc != SQLITE_OK) {
+			throw SQLException("error creating index");
+		}
+		else {
+			cout<< "Index created successfully"<<endl;
+		}
+		return 0;
 	}
-	else {
-		fprintf(stdout, "Index created successfully\n");
+	int insertData(UserDataList& dataList)
+	{
+
+		const char *sql = "INSERT INTO Birthdays (name,birthday) VALUES (?,?)";
+		int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+		if (rc != SQLITE_OK)
+		{
+			throw SQLException("insert error");
+		}
+
+		for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
+		{
+			sqlite3_bind_text(stmt, 1, it->name.c_str(), -1, SQLITE_TRANSIENT);
+			sqlite3_bind_int(stmt, 2, it->birthday);
+			rc = sqlite3_step(stmt);
+
+			sqlite3_reset(stmt);
+		}
+		dataList.clear();
+		sqlite3_finalize(stmt);
+		return 0;
 	}
-	return 0;
-}
-int readData(UserDataList& dataList) {
+	int enterName(UserDataList& dataList)
+	{
+
+		int rc = sqlite3_prepare_v2(db, "SELECT * FROM birthdays WHERE name = ?", -1, &stmt, 0);
+		if (rc != SQLITE_OK)
+		{
+			throw SQLException("select error");
+		}
+		cout << "Enter the name you`re looking for" << endl;
+		string name;
+		cin >> name;
+		sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
+		while (sqlite3_step(stmt) == SQLITE_ROW)
+		{
+			a.number = sqlite3_column_int(stmt, 0);
+			a.name = (const char*)(sqlite3_column_text(stmt, 1));
+			a.birthday = sqlite3_column_int(stmt, 2);
+			dataList.push_back(a);
+		}
+		if (sqlite3_step(stmt) != SQLITE_ROW) {
+			throw SQLException("name not found");
+		}
+
+		sqlite3_finalize(stmt);
+		return 0;
+
+	}
+	int selectData(UserDataList& dataList) {
+		for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
+		{
+			cout << it->number << "|" << it->name << "|" << it->birthday << endl;
+		}
+		return 0;
+	}
+	~SQL()
+	{
+		if (db != nullptr)
+			sqlite3_close(db);
+	}
+};
+
+class fileOperations{
+private:
+	userData d;
+	string name, birthdayStr;
+	int16_t birthday;
+public:
+fileOperations(){}
+
+
+void readData(UserDataList& dataList) {
 
 	
 	fstream f("C:\\DataBase\\names.txt", ios::in);
 	d.number = 1;
 	if (!f.is_open())
 	{
-		cout << "couldn`t open file";
 		throw SQLException ("couldn`t open file");
-		return 1;
 	}
 	while (!f.eof())
 	{
@@ -134,9 +173,8 @@ int readData(UserDataList& dataList) {
 		dataList.push_back(d);
 	}
 	f.close();
-	return 0;
 }
-int inputData(UserDataList& dataList)
+void inputData(UserDataList& dataList)
 {
 	
 	while (true)
@@ -171,69 +209,10 @@ int inputData(UserDataList& dataList)
 		dataList.push_back(d);
 
 	}
-	return 0;
-}
-int insertData(sqlite3* db, UserDataList& dataList)
-{
 	
-	const char *sql = "INSERT INTO Birthdays (name,birthday) VALUES (?,?)";
-	err = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
-	if (err != SQLITE_OK)
-	{
-		cout << "execution failed:" << sqlite3_errmsg(db) << endl;
-		throw SQLException("insert error");
-		return err;
-	}
-
-	for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
-	{
-		sqlite3_bind_text(stmt, 1, it->name.c_str(), -1, SQLITE_TRANSIENT);
-		sqlite3_bind_int(stmt, 2, it->birthday);
-		err = sqlite3_step(stmt);
-
-		sqlite3_reset(stmt);
-	}
-	dataList.clear();
-	sqlite3_finalize(stmt);
-	return 0;
 }
-int enterName(sqlite3* db, UserDataList& dataList)
-{
-	
-	rc=sqlite3_prepare_v2(db, "SELECT * FROM birthdays WHERE name = ?", -1, &stmt, 0);
-	if (rc != SQLITE_OK)
-	{
-		cout << "select failed:" << sqlite3_errmsg(db) << endl;
-		throw SQLException("select error");
-		return err;
-	}
-	cout << "Enter the name you`re looking for" << endl;
-	cin >> name;
-	sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
-	while (sqlite3_step(stmt) == SQLITE_ROW)
-	{
-		a.number = sqlite3_column_int(stmt, 0);
-		a.name = (const char*)(sqlite3_column_text(stmt, 1));
-		a.birthday = sqlite3_column_int(stmt, 2);
-		dataList.push_back(a);
-	}
-	if (sqlite3_step(stmt) != SQLITE_ROW) {
-		throw SQLException("name not found");
-	}
 
-
-	sqlite3_finalize(stmt);
-	return 0;
-
-}
-int selectData(sqlite3* db, UserDataList& dataList) {
-	for (UserDataList::iterator it = dataList.begin(); it != dataList.end(); it++)
-	{
-		cout << it->number << "|" << it->name << "|" << it->birthday << endl;
-	}
-	return 0;
-}
-~Operations(){}
+~fileOperations(){}
 };
 
 
@@ -245,15 +224,14 @@ int main()
 	std::list<userData> dataList;
 	SQL data;
 	data.Open(dir);
-	Operations op;
-	op.createTable(db);
-	op.createIndex(db);
+	fileOperations op;
+	data.createTable();
+	data.createIndex();
 	op.readData(dataList);
 	//op.inputData(dataList);
-	op.insertData(db, dataList);
-	op.enterName(db, dataList);
-	op.selectData(db, dataList);
-	
+	data.insertData(dataList);
+	data.enterName(dataList);
+	data.selectData(dataList);
 	data.~SQL();
 	}
 	catch (SQLException &ex) {
