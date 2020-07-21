@@ -217,6 +217,9 @@ int enterName(sqlite3* db, UserDataList& dataList)
 		a.birthday = sqlite3_column_int(stmt, 2);
 		dataList.push_back(a);
 	}
+	if (sqlite3_step(stmt) != SQLITE_ROW) {
+		throw SQLException("name not found");
+	}
 
 
 	sqlite3_finalize(stmt);
