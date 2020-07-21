@@ -17,8 +17,8 @@ struct userData
 	int number;
 };
 
-typedef std::list<userData> UserDataList;
-const char* dir = "C:\\DataBase\\first.db";
+
+
 
 class SQLException:public exception
 {
@@ -36,6 +36,8 @@ private:
 	char* messageError;
 	userData a;
 	string line;
+	const char* dir = "C:\\DataBase\\first.db";
+	typedef std::list<userData> UserDataList;
 	
 
 public:
@@ -44,7 +46,7 @@ public:
 
 	}
 
-	void Open(const char* dir)
+	void Open()
 	{
 		
 		int rc = sqlite3_open(dir, &db);
@@ -153,6 +155,7 @@ private:
 	userData d;
 	string name, birthdayStr;
 	int16_t birthday;
+	typedef std::list<userData> UserDataList;
 public:
 fileOperations(){}
 
@@ -223,7 +226,7 @@ int main()
 	try{
 	std::list<userData> dataList;
 	SQL data;
-	data.Open(dir);
+	data.Open();
 	fileOperations op;
 	data.createTable();
 	data.createIndex();
