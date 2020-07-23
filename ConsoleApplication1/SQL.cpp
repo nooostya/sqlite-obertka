@@ -1,6 +1,6 @@
 #include "SQL.h"
 #include"SQLException.h"
-SQL::SQL() : db(nullptr) {}
+#include"userData.h"
 
 void SQL::Open(const char * dir)
 {

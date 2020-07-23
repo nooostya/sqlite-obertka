@@ -24,6 +24,9 @@
     <ClCompile Include="SQL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fileOperations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3.h">
@@ -36,6 +39,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SQL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileOperations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="userData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

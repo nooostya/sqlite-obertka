@@ -3,6 +3,7 @@
 #include <list>
 #include "sqlite3.h"
 #include <string>
+#include"userData.h"
 class SQL {
 private:
 	
