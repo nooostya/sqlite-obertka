@@ -29,5 +29,8 @@
     <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3ext.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="SQLException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

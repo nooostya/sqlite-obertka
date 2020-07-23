@@ -8,6 +8,8 @@
 #include <list>
 #include <fstream>
 #include <exception>
+#include "SQLException.h"
+
 using namespace std;
 
 struct userData
@@ -20,25 +22,7 @@ struct userData
 
 
 
-class SQLException:public exception
-{
-private:
-	int errcode;
 
-public:
-	SQLException(const char* msg) :exception(msg){
-		errcode = 0;
-	}
-
-	SQLException(const char* msg, int err):exception(msg), errcode(err){
-		
-	}
-
-	int geterrcode() const
-	{
-		return errcode;
-	}
-};
 
 class SQL {
 private:
@@ -112,20 +96,22 @@ public:
 		dataList.clear();
 		sqlite3_finalize(stmt);
 	}
-	int enterName(UserDataList& dataList)
+	int bindName(UserDataList& dataList)
 	{
 		sqlite3_stmt *stmt;
-		userData a;
+		
 		int rc = sqlite3_prepare_v2(db, "SELECT * FROM birthdays WHERE name = ?", -1, &stmt, 0);
 		if (rc != SQLITE_OK)
 		{
-			throw SQLException("select error",rc);
+			throw SQLException("select error", rc);
 		}
 		cout << "Enter the name you`re looking for" << endl;
 		string name;
 		cin >> name;
 		sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
-		rc = sqlite3_step(stmt);
+		userData a;
+		
+		int er = sqlite3_step(stmt);
 		while (sqlite3_step(stmt) == SQLITE_ROW)
 		{
 			a.number = sqlite3_column_int(stmt, 0);
@@ -133,8 +119,8 @@ public:
 			a.birthday = sqlite3_column_int(stmt, 2);
 			dataList.push_back(a);
 		}
-		if ( rc!= SQLITE_ROW) {
-			throw SQLException("no such name", rc);
+		if ( er!= SQLITE_ROW) {
+			throw SQLException("no such name", er);
 		}
 
 		sqlite3_finalize(stmt);
@@ -238,12 +224,12 @@ int main()
 	op.readData(dataList);
 	//op.inputData(dataList);
 	data.insertData(dataList);
-	data.enterName(dataList);
+	data.bindName(dataList);
 	data.selectData(dataList);
 	data.~SQL();
 	}
 	catch (SQLException &ex) {
-		std::cerr << "An exception occurred: " << ex.what()<<" number"<<ex.geterrcode();
+		std::cerr << "An exception occurred: "<<ex.what()<< "number "<<ex.geterrcode();
 	}
 	return 0;
 }
