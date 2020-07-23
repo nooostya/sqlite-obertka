@@ -21,6 +21,9 @@
     <ClCompile Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SQL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3.h">
@@ -30,6 +33,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="SQLException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SQL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

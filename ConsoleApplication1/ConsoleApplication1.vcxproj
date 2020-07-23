@@ -157,10 +157,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3.c" />
     <ClCompile Include="ConsoleApplication1.cpp" />
+    <ClCompile Include="SQL.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3.h" />
     <ClInclude Include="..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\sqlite\sqlite3ext.h" />
+    <ClInclude Include="SQL.h" />
     <ClInclude Include="SQLException.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
