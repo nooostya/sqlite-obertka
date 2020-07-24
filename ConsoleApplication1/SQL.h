@@ -8,7 +8,8 @@ class SQL {
 private:
 	
 	sqlite3* db;
-	typedef std::list<userData> UserDataList;
+	char name;
+	
 
 public:
 
@@ -20,7 +21,7 @@ public:
 	void createTable();
 	int createIndex();
 	void insertData(UserDataList& dataList);
-	int bindName(UserDataList& dataList);
+	int bindName(UserDataList& dataList, std::string name);
 	int selectData(UserDataList& dataList);
 	~SQL()
 	{

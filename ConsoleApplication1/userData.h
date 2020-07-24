@@ -7,3 +7,5 @@ struct userData
 	int birthday;
 	int number;
 };
+
+typedef std::list<userData> UserDataList;

@@ -1,6 +1,8 @@
 #include "SQL.h"
 #include"SQLException.h"
 #include"userData.h"
+#include<string>
+
 
 void SQL::Open(const char * dir)
 {
@@ -12,6 +14,8 @@ void SQL::Open(const char * dir)
 	else {
 		fprintf(stdout, "Opened database successfully\n");
 	}
+	this->createTable();
+	this->createIndex();
 }
 
 void SQL::createTable()
@@ -68,7 +72,8 @@ void SQL::insertData(UserDataList & dataList)
 	sqlite3_finalize(stmt);
 }
 
-int SQL::bindName(UserDataList & dataList)
+
+int SQL::bindName(UserDataList & dataList, std::string name)
 {
 	sqlite3_stmt *stmt;
 
@@ -77,9 +82,7 @@ int SQL::bindName(UserDataList & dataList)
 	{
 		throw SQLException("select error", rc);
 	}
-	std::cout << "Enter the name you`re looking for" << std::endl;
-	std::string name;
-	std::cin >> name;
+	
 	sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_TRANSIENT);
 	userData a;
 
