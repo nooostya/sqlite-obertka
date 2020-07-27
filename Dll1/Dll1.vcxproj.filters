@@ -21,25 +21,22 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ConsoleApplication1\fileOperations.h">
+    <ClInclude Include="fileOperations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ConsoleApplication1\Header.h">
+    <ClInclude Include="SQL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ConsoleApplication1\SQL.h">
+    <ClInclude Include="SQLException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ConsoleApplication1\SQLException.h">
+    <ClInclude Include="userData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ConsoleApplication1\userData.h">
+    <ClInclude Include="sqlite3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\sqlite3\sqlite3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\sqlite3\sqlite3ext.h">
+    <ClInclude Include="Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,13 +47,16 @@
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ConsoleApplication1\fileOperations.cpp">
+    <ClCompile Include="fileOperations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ConsoleApplication1\SQL.cpp">
+    <ClCompile Include="SQL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ConsoleApplication1\SQLException.cpp">
+    <ClCompile Include="SQLException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sqlite3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

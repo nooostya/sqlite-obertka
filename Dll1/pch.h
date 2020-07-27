@@ -8,6 +8,8 @@
 #define PCH_H
 
 // add headers that you want to pre-compile here
-#include "framework.h"
+#include "sqlite3.h"
+#include <Windows.h>
+
 
 #endif //PCH_H
